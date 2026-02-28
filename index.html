@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jonathan Bridges — Sculptor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Darker+Grotesque:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b0f;
+    --bg-elevated: #13121a;
+    --gold: #c9a84c;
+    --gold-light: #e4cc7a;
+    --gold-dim: #8a7235;
+    --cream: #e8e0d0;
+    --cream-dim: #9a9487;
+    --white: #f5f1eb;
+    --text-body: #b0a999;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Darker Grotesque', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dim) var(--bg);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  /* Cursor */
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease-out;
+  }
+  .cursor-ring.hovering {
+    width: 64px; height: 64px;
+    border-color: var(--gold);
+    background: rgba(201, 168, 76, 0.06);
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: difference;
+    transition: padding 0.4s ease;
+  }
+  nav.scrolled { padding: 18px 48px; }
+
+  .nav-brand {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .nav-links {
+    display: flex; gap: 40px; list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* Hero */
+  .hero {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 64px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-overline {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 110px);
+    line-height: 0.92;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.5s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  .hero-subtitle {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(16px, 1.8vw, 21px);
+    color: var(--cream-dim);
+    margin-top: 36px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.9s forwards;
+  }
+
+  .hero-image-col {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center 20%;
+    filter: brightness(0.65) saturate(0.9);
+    animation: heroZoom 20s ease-in-out infinite alternate;
+  }
+
+  .hero-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--bg) 0%, rgba(12,11,15,0.4) 30%, transparent 100%);
+    z-index: 1;
+  }
+
+  .hero-img-overlay-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(to top, var(--bg), transparent);
+    z-index: 1;
+  }
+
+  @keyframes heroZoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.3s forwards;
+    z-index: 3;
+  }
+  .hero-scroll span {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--gold-dim), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.6); transform-origin: top; }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* Statement */
+  .statement {
+    padding: 160px 48px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-marker {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .section-marker::before {
+    content: '';
+    display: block;
+    width: 40px; height: 1px;
+    background: var(--gold-dim);
+  }
+
+  .statement-text {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(24px, 3.2vw, 40px);
+    line-height: 1.5;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+  .statement-text .highlight {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  /* Series */
+  .series {
+    padding: 80px 48px 160px;
+  }
+
+  .series-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+  }
+  .series-title {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(36px, 5vw, 64px);
+    color: var(--white);
+    line-height: 1;
+  }
+  .series-count {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+
+  .series-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .series-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 3/4;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+  }
+  .series-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(201, 168, 76, 0);
+    z-index: 3;
+    transition: border-color 0.5s ease;
+    border-radius: 2px;
+  }
+  .series-card:hover::before {
+    border-color: rgba(201, 168, 76, 0.25);
+  }
+
+  .card-image {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.6s ease;
+    filter: brightness(0.7) saturate(0.85);
+  }
+  .series-card:hover .card-image {
+    transform: scale(1.06);
+    filter: brightness(0.85) saturate(1);
+  }
+
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(12, 11, 15, 0.95) 0%, rgba(12, 11, 15, 0.3) 40%, transparent 100%);
+    z-index: 2;
+    transition: background 0.5s ease;
+  }
+  .series-card:hover .card-overlay {
+    background: linear-gradient(to top, rgba(12, 11, 15, 0.85) 0%, rgba(12, 11, 15, 0.15) 40%, transparent 100%);
+  }
+
+  .card-content {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 36px;
+    z-index: 3;
+  }
+  .card-number {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dim);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 28px;
+    color: var(--white);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+  }
+  .series-card:hover .card-title {
+    color: var(--gold-light);
+  }
+  .card-materials {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--cream-dim);
+    letter-spacing: 0.05em;
+  }
+  .card-arrow {
+    position: absolute;
+    top: 32px; right: 32px;
+    z-index: 3;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.4s ease;
+  }
+  .card-arrow svg {
+    width: 14px; height: 14px;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .series-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Selected Works */
+  .selected-works {
+    padding: 160px 0 120px;
+  }
+  .selected-works .section-marker {
+    padding-left: 48px;
+  }
+
+  .works-track {
+    display: flex;
+    gap: 32px;
+    padding: 0 48px;
+    margin-top: 48px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .works-track::-webkit-scrollbar { display: none; }
+  .works-track:active { cursor: grabbing; }
+
+  .work-item {
+    flex: 0 0 auto;
+    width: clamp(300px, 30vw, 440px);
+    scroll-snap-align: start;
+    transition: transform 0.4s ease;
+  }
+  .work-item:hover {
+    transform: translateY(-4px);
+  }
+
+  .work-image {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background-size: cover;
+    background-position: center;
+    border-radius: 2px;
+    overflow: hidden;
+    filter: brightness(0.8) saturate(0.9);
+    transition: filter 0.5s ease;
+  }
+  .work-item:hover .work-image {
+    filter: brightness(0.95) saturate(1);
+  }
+
+  .work-info {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .work-name {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--cream);
+  }
+  .work-details {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--cream-dim);
+    letter-spacing: 0.05em;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* Resume */
+  .resume {
+    padding: 160px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 120px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .resume::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 48px; right: 48px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    opacity: 0.3;
+  }
+
+  .resume-left .section-marker {
+    margin-bottom: 48px;
+  }
+
+  .resume-heading {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(32px, 4vw, 52px);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 32px;
+  }
+  .resume-heading em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .resume-bio {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-body);
+    max-width: 500px;
+  }
+
+  .portrait-img {
+    margin-top: 48px;
+    width: 280px;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    border-radius: 2px;
+    filter: brightness(0.85) saturate(0.9);
+  }
+
+  .cv-section {
+    margin-bottom: 56px;
+  }
+  .cv-section-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+  }
+  .cv-item {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+    align-items: baseline;
+  }
+  .cv-year {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--cream-dim);
+    min-width: 70px;
+    letter-spacing: 0.05em;
+  }
+  .cv-desc {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--cream);
+    line-height: 1.5;
+  }
+  .cv-desc .location {
+    color: var(--cream-dim);
+    font-size: 13px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* Contact */
+  .contact {
+    padding: 160px 48px 80px;
+    text-align: center;
+    position: relative;
+  }
+  .contact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 48px; right: 48px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    opacity: 0.3;
+  }
+  .contact-overline {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 40px;
+  }
+  .contact-heading {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(36px, 6vw, 80px);
+    color: var(--white);
+    margin-bottom: 48px;
+    line-height: 1.1;
+  }
+  .contact-email {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(16px, 2vw, 22px);
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.3s ease;
+  }
+  .contact-email::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0.3);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .contact-email:hover::after {
+    transform: scaleX(1);
+  }
+  .contact-social {
+    margin-top: 32px;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--cream-dim);
+    letter-spacing: 0.1em;
+  }
+  .contact-social a {
+    color: var(--cream-dim);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .contact-social a:hover { color: var(--gold); }
+
+  footer {
+    padding: 40px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(201, 168, 76, 0.08);
+  }
+  footer span {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--cream-dim);
+    opacity: 0.5;
+    text-transform: uppercase;
+  }
+
+  /* Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-image-col { position: absolute; inset: 0; }
+    .hero-img-overlay { background: linear-gradient(to right, rgba(12,11,15,0.85) 0%, rgba(12,11,15,0.5) 100%); }
+    .hero-text { z-index: 3; padding: 0 48px; }
+    .series-grid { grid-template-columns: repeat(2, 1fr); }
+    .resume { grid-template-columns: 1fr; gap: 80px; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links { gap: 24px; }
+    .nav-links a { font-size: 11px; }
+    .hero-text { padding: 0 24px; }
+    .hero-scroll { left: 24px; }
+    .statement { padding: 100px 24px; }
+    .series { padding: 60px 24px 100px; }
+    .series-grid { grid-template-columns: 1fr; gap: 20px; }
+    .series-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .works-track { padding: 0 24px; }
+    .resume { padding: 100px 24px; }
+    .contact { padding: 100px 24px 60px; }
+    footer { padding: 30px 24px; flex-direction: column; gap: 12px; }
+    .cursor-dot, .cursor-ring { display: none; }
+    .selected-works .section-marker { padding-left: 24px; }
+    .portrait-img { width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav id="navbar">
+  <div class="nav-brand">Jonathan Bridges</div>
+  <ul class="nav-links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-overline">Porcelain · Bronze · Iron</p>
+    <h1 class="hero-title">Jonathan<br><em>Bridges</em></h1>
+    <p class="hero-subtitle">Brutally joyful objects for the sacred &amp; profane</p>
+  </div>
+  <div class="hero-image-col">
+    <div class="hero-img" style="background-image: url('images/monstrance.jpg');"></div>
+    <div class="hero-img-overlay"></div>
+    <div class="hero-img-overlay-bottom"></div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Statement -->
+<section class="statement">
+  <div class="section-marker reveal">Artist Statement</div>
+  <p class="statement-text reveal reveal-delay-1">
+    Joy — what does this feel like? Can joy also be something <span class="highlight">brutal</span>?
+    I work with my heart and my joy. But also my pleasure. My unraveling.
+    Once together, they hold hands and balance the other's intensity.
+    The result is something <span class="highlight">brutally joyful.</span>
+  </p>
+</section>
+
+<!-- Series -->
+<section class="series" id="work">
+  <div class="series-header reveal">
+    <h2 class="series-title">Series</h2>
+    <span class="series-count">Three Collections</span>
+  </div>
+  <div class="series-grid">
+
+    <div class="series-card reveal reveal-delay-1">
+      <div class="card-image" style="background-image: url('images/canary-jar.jpg');"></div>
+      <div class="card-overlay"></div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></div>
+      <div class="card-content">
+        <span class="card-number">Series 01</span>
+        <h3 class="card-title">Lidded Jars</h3>
+        <p class="card-materials">Porcelain &amp; Iron · 2019–2022</p>
+      </div>
+    </div>
+
+    <div class="series-card reveal reveal-delay-2">
+      <div class="card-image" style="background-image: url('images/reliquary.jpg');"></div>
+      <div class="card-overlay"></div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></div>
+      <div class="card-content">
+        <span class="card-number">Series 02</span>
+        <h3 class="card-title">Burial Urns</h3>
+        <p class="card-materials">Porcelain, Brass, Glass &amp; Gems · 2020–2022</p>
+      </div>
+    </div>
+
+    <div class="series-card reveal reveal-delay-3">
+      <div class="card-image" style="background-image: url('images/quencher-3.jpg');"></div>
+      <div class="card-overlay"></div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></div>
+      <div class="card-content">
+        <span class="card-number">Series 03</span>
+        <h3 class="card-title">Bronze Figures</h3>
+        <p class="card-materials">Bronze · 2024–2025</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Selected Works -->
+<section class="selected-works">
+  <div class="section-marker reveal">Selected Works</div>
+  <div class="works-track" id="worksTrack">
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/canary-jar.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Canary Jar</span>
+        <span class="work-details">2022<br>Porcelain, Iron</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/ruby-jars.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Ruby Jars</span>
+        <span class="work-details">2019<br>Porcelain</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/reliquary-alt.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Reliquary</span>
+        <span class="work-details">2020<br>Porcelain &amp; Brass</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/monstrance.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Monstrance</span>
+        <span class="work-details">2021<br>Porcelain, Brass &amp; Diamonds</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/tabernacle.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Tabernacle</span>
+        <span class="work-details">2022<br>Porcelain, Brass, Glass &amp; Gems</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/quencher-1-alt.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Quencher I</span>
+        <span class="work-details">2024<br>Bronze</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/quencher-2.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Quencher II</span>
+        <span class="work-details">2024<br>Bronze</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/quencher-3.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Quencher III</span>
+        <span class="work-details">2025<br>Bronze</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/amuse-bouche.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Amuse bouche</span>
+        <span class="work-details">2025<br>Bronze</span>
+      </div>
+    </div>
+
+    <div class="work-item">
+      <div class="work-image" style="background-image: url('images/mounting.jpg');"></div>
+      <div class="work-info">
+        <span class="work-name">Mounting</span>
+        <span class="work-details">2025<br>Bronze</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Resume -->
+<section class="resume" id="about">
+  <div class="resume-left">
+    <div class="section-marker reveal">Curriculum Vitae</div>
+    <h2 class="resume-heading reveal reveal-delay-1">Shaping the <em>sacred</em><br>from earth &amp; fire</h2>
+    <p class="resume-bio reveal reveal-delay-2">
+      Jonathan Bridges is a full-time studio artist working in porcelain, bronze, iron,
+      brass, and mixed media. His practice explores the tension between joy and brutality
+      — creating ornate vessels and visceral sculptural forms that honor both the sacred
+      and the profane. He holds an MFA from The University of Minnesota and a BFA from
+      Alfred University, and has exhibited internationally from New York to Toyama, Japan.
+    </p>
+    <img src="images/portrait.jpg" alt="Jonathan Bridges" class="portrait-img reveal reveal-delay-3">
+  </div>
+  <div class="resume-right">
+
+    <div class="cv-section reveal">
+      <div class="cv-section-title">Education</div>
+      <div class="cv-item">
+        <span class="cv-year">2002–06</span>
+        <span class="cv-desc">MFA, The University of Minnesota<span class="location">Minneapolis, MN</span></span>
+      </div>
+      <div class="cv-item">
+        <span class="cv-year">1998–02</span>
+        <span class="cv-desc">BFA, Alfred University<span class="location">Alfred, NY</span></span>
+      </div>
+    </div>
+
+    <div class="cv-section reveal reveal-delay-1">
+      <div class="cv-section-title">Selected Exhibitions</div>
+      <div class="cv-item">
+        <span class="cv-year">2024</span>
+        <span class="cv-desc">Gestaltinized<span class="location">More than Lemons Gallery, Holton, KS</span></span>
+      </div>
+      <div class="cv-item">
+        <span class="cv-year">2024</span>
+        <span class="cv-desc">Between the Teeth<span class="location">Dojo Gallery, Lawrence, KS</span></span>
+      </div>
+      <div class="cv-item">
+        <span class="cv-year">2021</span>
+        <span class="cv-desc">International KOGEI Award<span class="location">Toyama Prefectural Museum, Japan</span></span>
+      </div>
+      <div class="cv-item">
+        <span class="cv-year">2021</span>
+        <span class="cv-desc">Waiting To Exhale<span class="location">Jill Krutick Fine Art, NYC</span></span>
+      </div>
+      <div class="cv-item">
+        <span class="cv-year">2008</span>
+        <span class="cv-desc">Ocular Hedonism<span class="location">Greenlease Gallery, Rockhurst University</span></span>
+      </div>
+    </div>
+
+    <div class="cv-section reveal reveal-delay-2">
+      <div class="cv-section-title">Publication</div>
+      <div class="cv-item">
+        <span class="cv-year">2007</span>
+        <span class="cv-desc">Shaping the Future of Craft<span class="location">American Craft Council</span></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="contact" id="contact">
+  <p class="contact-overline reveal">Inquiries &amp; Commissions</p>
+  <h2 class="contact-heading reveal reveal-delay-1">Let's create something<br><em>brutally joyful</em></h2>
+  <a href="mailto:JonathanBridgesart@gmail.com" class="contact-email reveal reveal-delay-2">JonathanBridgesart@gmail.com</a>
+  <p class="contact-social reveal reveal-delay-3">
+    <a href="https://instagram.com/jonathanbridgesart" target="_blank">@jonathanbridgesart</a>
+  </p>
+</section>
+
+<footer>
+  <span>&copy; 2025 Jonathan Bridges</span>
+  <span>Porcelain &middot; Bronze &middot; Iron</span>
+</footer>
+
+<script>
+  // Cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, .series-card, .work-item').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+  });
+
+  // Nav scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // Drag scroll
+  const track = document.getElementById('worksTrack');
+  let isDown = false, startX, scrollLeft;
+  track.addEventListener('mousedown', e => {
+    isDown = true;
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+  });
+  track.addEventListener('mouseleave', () => isDown = false);
+  track.addEventListener('mouseup', () => isDown = false);
+  track.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    track.scrollLeft = scrollLeft - (x - startX) * 1.5;
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
